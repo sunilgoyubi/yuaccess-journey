@@ -1,40 +1,38 @@
 package com.yubi.yuaccessjourney.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.*;
+
 
 @Entity
 public class Journey {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "User email is required")
-    private String userEmail;
-
-    @NotBlank(message = "Journey name is required")
+    @NotNull
     private String journeyName;
 
-    private String prompt = "";
+    @NotNull
+    private String prompt;
 
-    @NotBlank(message = "File type is required")
+    @NotNull
     private String fileType;
 
-    // Getters and Setters
+    private String userEmail;  // You can keep this to store the email, but User object is used for DB relation
+
+    @ManyToOne(fetch = FetchType.LAZY)  // Many Journeys can be associated with one User
+    @JoinColumn(name = "user_id")  // Join column for user_id
+    private User user;
+
+    // Getters and Setters for all fields
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getUserEmail() {
-        return userEmail;
-    }
-
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
     }
 
     public String getJourneyName() {
@@ -59,5 +57,21 @@ public class Journey {
 
     public void setFileType(String fileType) {
         this.fileType = fileType;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

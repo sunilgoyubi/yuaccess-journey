@@ -1,7 +1,9 @@
 package com.yubi.yuaccessjourney.controller;
 
 import com.yubi.yuaccessjourney.model.Journey;
+import com.yubi.yuaccessjourney.model.User;
 import com.yubi.yuaccessjourney.service.JourneyService;
+import com.yubi.yuaccessjourney.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,9 +15,11 @@ import java.util.Optional;
 public class JourneyController {
 
     private final JourneyService journeyService;
+    private final UserService userService; // Add this line to inject UserService
 
-    public JourneyController(JourneyService journeyService) {
+    public JourneyController(JourneyService journeyService, UserService userService) {
         this.journeyService = journeyService;
+        this.userService = userService; // Initialize the UserService
     }
 
     // Get journey by ID
@@ -27,15 +31,22 @@ public class JourneyController {
     }
 
     // Create a new journey
-    // Correcting the @PostMapping mapping
     @PostMapping
     public ResponseEntity<Journey> createJourney(@RequestBody Journey journey) {
-        Journey createdJourney = journeyService.saveJourney(journey);
-        return ResponseEntity
-                .status(HttpStatus.CREATED) // Return 201 status code
-                .body(createdJourney); // Return the created journey object
-    }
+        // Find user by email using the injected userService
+        Optional<User> user = userService.findByEmail(journey.getUserEmail());
 
+        if (!user.isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(null);  // User not found
+        }
+
+        // Set the user_id for the journey
+        journey.setUser(user.get());  // Assuming Journey has a User field (ManyToOne relation)
+
+        Journey createdJourney = journeyService.saveJourney(journey);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdJourney);
+    }
 
     // Update a journey
     @PutMapping("/{id}")
@@ -47,8 +58,6 @@ public class JourneyController {
             return ResponseEntity.notFound().build(); // Return 404 if the journey is not found
         }
     }
-
-
 
     // Delete a journey by ID
     @DeleteMapping("/{id}")
