@@ -19,7 +19,7 @@ public class Journey {
     @NotNull
     private String fileType;
 
-    private String userEmail;  // You can keep this to store the email, but User object is used for DB relation
+    private String userEmail;  // Optional, can be used for storing the email, but user object will be used for DB relation
 
     @Lob
     private String outputJson;  // Field to store the output JSON

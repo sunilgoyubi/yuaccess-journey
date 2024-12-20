@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface JourneyService {
-    Journey saveJourney(Journey journey);
+    Journey saveJourney(Journey journey, String email);
     Optional<Journey> getJourneyById(Long id);
     List<Journey> getAllJourneys();
     Journey updateJourney(Long id, Journey journey);

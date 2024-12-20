@@ -1,13 +1,16 @@
 package com.yubi.yuaccessjourney.controller;
 
 import com.yubi.yuaccessjourney.model.Journey;
-import com.yubi.yuaccessjourney.model.User;
+import com.yubi.yuaccessjourney.security.JwtTokenProvider;
 import com.yubi.yuaccessjourney.service.JourneyService;
-import com.yubi.yuaccessjourney.service.UserService;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.Optional;
 
 @RestController
@@ -15,11 +18,38 @@ import java.util.Optional;
 public class JourneyController {
 
     private final JourneyService journeyService;
-    private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public JourneyController(JourneyService journeyService, UserService userService) {
+    public JourneyController(JourneyService journeyService, JwtTokenProvider jwtTokenProvider) {
         this.journeyService = journeyService;
-        this.userService = userService;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
+
+    // Create a new journey
+    @PostMapping
+    public ResponseEntity<Journey> createJourney(@RequestBody Journey journey, HttpServletRequest request) {
+        try {
+            // Extract the email from the JWT token
+            String token = jwtTokenProvider.resolveToken(request);
+            if (token == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            }
+
+            String email = jwtTokenProvider.getEmailFromToken(token);
+
+            // Set the email on the journey object, if not already set
+            journey.setUserEmail(email);
+
+            // Call the service method to save the journey with the user email
+            Journey createdJourney = journeyService.saveJourney(journey, email);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdJourney);
+        } catch (ParseException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);  // Invalid token
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);  // User not found
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);  // Other errors
+        }
     }
 
     // Get journey by ID
@@ -29,21 +59,6 @@ public class JourneyController {
         return journey.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
-
-    // Create a new journey
-    @PostMapping
-    public ResponseEntity<Journey> createJourney(@RequestBody Journey journey) {
-        Optional<User> user = userService.findByEmail(journey.getUserEmail());
-
-        if (!user.isPresent()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-
-        journey.setUser(user.get());
-        Journey createdJourney = journeyService.saveJourney(journey);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdJourney);
-    }
-
     // Update a journey
     @PutMapping("/{id}")
     public ResponseEntity<Journey> updateJourney(@PathVariable Long id, @RequestBody Journey journey) {

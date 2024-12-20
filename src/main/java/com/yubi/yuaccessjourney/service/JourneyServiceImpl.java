@@ -1,7 +1,9 @@
 package com.yubi.yuaccessjourney.service;
 
 import com.yubi.yuaccessjourney.model.Journey;
+import com.yubi.yuaccessjourney.model.User;
 import com.yubi.yuaccessjourney.repository.JourneyRepository;
+import com.yubi.yuaccessjourney.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,13 +13,26 @@ import java.util.Optional;
 public class JourneyServiceImpl implements JourneyService {
 
     private final JourneyRepository journeyRepository;
+    private final UserRepository userRepository;  // Add UserRepository to fetch user by email
 
-    public JourneyServiceImpl(JourneyRepository journeyRepository) {
+    public JourneyServiceImpl(JourneyRepository journeyRepository, UserRepository userRepository) {
         this.journeyRepository = journeyRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
-    public Journey saveJourney(Journey journey) {
+    public Journey saveJourney(Journey journey, String email) {
+        // Find the user by email
+        Optional<User> user = userRepository.findByEmail(email);
+        
+        if (user.isPresent()) {
+            // Set the user object to the journey
+            journey.setUser(user.get());
+        } else {
+            throw new IllegalArgumentException("User not found with email: " + email);
+        }
+
+        // Save the journey with the associated user
         return journeyRepository.save(journey);
     }
 

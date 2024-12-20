@@ -1,6 +1,6 @@
 package com.yubi.yuaccessjourney.service;
 
-import com.yubi.yuaccessjourney.Repository.UserRepository;
+import com.yubi.yuaccessjourney.repository.UserRepository;
 import com.yubi.yuaccessjourney.model.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

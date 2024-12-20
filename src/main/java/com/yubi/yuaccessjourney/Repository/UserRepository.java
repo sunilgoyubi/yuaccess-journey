@@ -1,4 +1,4 @@
-package com.yubi.yuaccessjourney.Repository;
+package com.yubi.yuaccessjourney.repository;
 
 import com.yubi.yuaccessjourney.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
