@@ -30,26 +30,16 @@ public class JourneyController {
     @PostMapping
     public ResponseEntity<Journey> createJourney(@RequestBody Journey journey, HttpServletRequest request) {
         try {
-            // Extract the email from the JWT token
             String token = jwtTokenProvider.resolveToken(request);
             if (token == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
             }
-
             String email = jwtTokenProvider.getEmailFromToken(token);
-
-            // Set the email on the journey object, if not already set
             journey.setUserEmail(email);
-
-            // Call the service method to save the journey with the user email
             Journey createdJourney = journeyService.saveJourney(journey, email);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdJourney);
-        } catch (ParseException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);  // Invalid token
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);  // User not found
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);  // Other errors
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
@@ -85,14 +75,13 @@ public class JourneyController {
         return journey.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
-    // Update a journey
     @PutMapping("/{id}")
     public ResponseEntity<Journey> updateJourney(@PathVariable Long id, @RequestBody Journey journey) {
-        Journey updatedJourney = journeyService.updateJourney(id, journey);
-        if (updatedJourney != null) {
+        try {
+            Journey updatedJourney = journeyService.updateJourney(id, journey);
             return ResponseEntity.ok(updatedJourney);
-        } else {
-            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 

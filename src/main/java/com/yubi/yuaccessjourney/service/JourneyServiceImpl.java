@@ -13,7 +13,7 @@ import java.util.Optional;
 public class JourneyServiceImpl implements JourneyService {
 
     private final JourneyRepository journeyRepository;
-    private final UserRepository userRepository;  // Add UserRepository to fetch user by email
+    private final UserRepository userRepository;
 
     public JourneyServiceImpl(JourneyRepository journeyRepository, UserRepository userRepository) {
         this.journeyRepository = journeyRepository;
@@ -24,15 +24,13 @@ public class JourneyServiceImpl implements JourneyService {
     public Journey saveJourney(Journey journey, String email) {
         // Find the user by email
         Optional<User> user = userRepository.findByEmail(email);
-        
         if (user.isPresent()) {
-            // Set the user object to the journey
+            // Associate the user with the journey
             journey.setUser(user.get());
         } else {
             throw new IllegalArgumentException("User not found with email: " + email);
         }
-
-        // Save the journey with the associated user
+        // Save the journey
         return journeyRepository.save(journey);
     }
 
@@ -44,19 +42,6 @@ public class JourneyServiceImpl implements JourneyService {
     @Override
     public List<Journey> getAllJourneys() {
         return journeyRepository.findAll();
-    }
-
-    @Override
-    public Journey updateJourney(Long id, Journey journey) {
-        return journeyRepository.findById(id)
-                .map(existingJourney -> {
-                    existingJourney.setJourneyName(journey.getJourneyName());
-                    existingJourney.setPrompt(journey.getPrompt());
-                    existingJourney.setFileType(journey.getFileType());
-                    existingJourney.setOutputJson(journey.getOutputJson());
-                    return journeyRepository.save(existingJourney);
-                })
-                .orElseThrow(() -> new IllegalArgumentException("Journey not found with ID: " + id));
     }
 
     @Override
@@ -72,6 +57,28 @@ public class JourneyServiceImpl implements JourneyService {
         }
     }
 
+    @Override
+    public Journey updateJourney(Long id, Journey journey) {
+        return journeyRepository.findById(id)
+                .map(existingJourney -> {
+                    // Update existing journey fields
+                    existingJourney.setJourneyName(journey.getJourneyName());
+                    existingJourney.setPrompt(journey.getPrompt());
+                    existingJourney.setFileType(journey.getFileType());
+                    existingJourney.setOutputJson(journey.getOutputJson());
+                    existingJourney.setOutputType(journey.getOutputType());
+                    existingJourney.setJourneyDescription(journey.getJourneyDescription());
+                    existingJourney.setDocumentSection(journey.getDocumentSection());
+                    existingJourney.setConfigurations(journey.getConfigurations());
+                    existingJourney.setErrorConfiguration(journey.getErrorConfiguration());
+                    existingJourney.setValidation(journey.getValidation());
+                    existingJourney.setVerification(journey.getVerification());
+
+                    // Save updated journey
+                    return journeyRepository.save(existingJourney);
+                })
+                .orElseThrow(() -> new IllegalArgumentException("Journey not found with ID: " + id));
+    }
 
     @Override
     public boolean deleteJourney(Long id) {
