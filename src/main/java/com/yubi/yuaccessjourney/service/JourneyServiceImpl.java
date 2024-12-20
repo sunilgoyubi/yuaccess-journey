@@ -38,6 +38,7 @@ public class JourneyServiceImpl implements JourneyService {
                     existingJourney.setJourneyName(journey.getJourneyName());
                     existingJourney.setPrompt(journey.getPrompt());
                     existingJourney.setFileType(journey.getFileType());
+                    existingJourney.setOutputJson(journey.getOutputJson());
                     return journeyRepository.save(existingJourney);
                 })
                 .orElseThrow(() -> new IllegalArgumentException("Journey not found with ID: " + id));
@@ -47,9 +48,9 @@ public class JourneyServiceImpl implements JourneyService {
     public boolean deleteJourney(Long id) {
         if (journeyRepository.existsById(id)) {
             journeyRepository.deleteById(id);
-            return true; // Return true if deletion was successful
+            return true;
         } else {
-            return false; // Return false if the journey was not found
+            return false;
         }
     }
 }

@@ -15,35 +15,31 @@ import java.util.Optional;
 public class JourneyController {
 
     private final JourneyService journeyService;
-    private final UserService userService; // Add this line to inject UserService
+    private final UserService userService;
 
     public JourneyController(JourneyService journeyService, UserService userService) {
         this.journeyService = journeyService;
-        this.userService = userService; // Initialize the UserService
+        this.userService = userService;
     }
 
     // Get journey by ID
     @GetMapping("/{id}")
     public ResponseEntity<Journey> getJourneyById(@PathVariable Long id) {
         Optional<Journey> journey = journeyService.getJourneyById(id);
-        return journey.map(ResponseEntity::ok) // If journey is found, return it
-                .orElseGet(() -> ResponseEntity.notFound().build()); // If not, return 404
+        return journey.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Create a new journey
     @PostMapping
     public ResponseEntity<Journey> createJourney(@RequestBody Journey journey) {
-        // Find user by email using the injected userService
         Optional<User> user = userService.findByEmail(journey.getUserEmail());
 
         if (!user.isPresent()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(null);  // User not found
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
 
-        // Set the user_id for the journey
-        journey.setUser(user.get());  // Assuming Journey has a User field (ManyToOne relation)
-
+        journey.setUser(user.get());
         Journey createdJourney = journeyService.saveJourney(journey);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdJourney);
     }
@@ -53,9 +49,9 @@ public class JourneyController {
     public ResponseEntity<Journey> updateJourney(@PathVariable Long id, @RequestBody Journey journey) {
         Journey updatedJourney = journeyService.updateJourney(id, journey);
         if (updatedJourney != null) {
-            return ResponseEntity.ok(updatedJourney); // Return the updated journey
+            return ResponseEntity.ok(updatedJourney);
         } else {
-            return ResponseEntity.notFound().build(); // Return 404 if the journey is not found
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -64,9 +60,9 @@ public class JourneyController {
     public ResponseEntity<Void> deleteJourney(@PathVariable Long id) {
         boolean isDeleted = journeyService.deleteJourney(id);
         if (isDeleted) {
-            return ResponseEntity.noContent().build(); // 204 No Content if deletion was successful
+            return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.notFound().build(); // 404 if the journey is not found
+            return ResponseEntity.notFound().build();
         }
     }
 }

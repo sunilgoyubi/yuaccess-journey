@@ -9,5 +9,5 @@ public interface JourneyService {
     Optional<Journey> getJourneyById(Long id);
     List<Journey> getAllJourneys();
     Journey updateJourney(Long id, Journey journey);
-    boolean deleteJourney(Long id);  // Change the return type to boolean
+    boolean deleteJourney(Long id);
 }

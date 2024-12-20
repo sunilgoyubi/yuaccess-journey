@@ -3,7 +3,6 @@ package com.yubi.yuaccessjourney.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
-
 @Entity
 public class Journey {
 
@@ -21,6 +20,9 @@ public class Journey {
     private String fileType;
 
     private String userEmail;  // You can keep this to store the email, but User object is used for DB relation
+
+    @Lob
+    private String outputJson;  // Field to store the output JSON
 
     @ManyToOne(fetch = FetchType.LAZY)  // Many Journeys can be associated with one User
     @JoinColumn(name = "user_id")  // Join column for user_id
@@ -65,6 +67,14 @@ public class Journey {
 
     public void setUserEmail(String userEmail) {
         this.userEmail = userEmail;
+    }
+
+    public String getOutputJson() {
+        return outputJson;
+    }
+
+    public void setOutputJson(String outputJson) {
+        this.outputJson = outputJson;
     }
 
     public User getUser() {
