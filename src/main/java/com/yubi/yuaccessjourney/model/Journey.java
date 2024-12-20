@@ -1,5 +1,6 @@
 package com.yubi.yuaccessjourney.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
@@ -25,7 +26,8 @@ public class Journey {
     private String outputJson;  // Field to store the output JSON
 
     @ManyToOne(fetch = FetchType.LAZY)  // Many Journeys can be associated with one User
-    @JoinColumn(name = "user_id")  // Join column for user_id
+    @JoinColumn(name = "user_id")
+    @JsonBackReference // Prevent recursion// Join column for user_id
     private User user;
 
     // Getters and Setters for all fields

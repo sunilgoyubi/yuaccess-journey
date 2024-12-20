@@ -1,6 +1,9 @@
 package com.yubi.yuaccessjourney.model;
 
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
@@ -16,6 +19,7 @@ public class User {
     private String password;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference// Prevent recursion
     private List<Journey> journeys;
 
     // Getters and Setters
