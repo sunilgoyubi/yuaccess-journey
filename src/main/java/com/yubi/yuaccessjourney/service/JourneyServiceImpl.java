@@ -60,6 +60,20 @@ public class JourneyServiceImpl implements JourneyService {
     }
 
     @Override
+    public List<Journey> getAllJourneysByUserEmail(String email) {
+        // Find the user by email
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if (user.isPresent()) {
+            // Return journeys associated with the user
+            return user.get().getJourneys();
+        } else {
+            throw new IllegalArgumentException("User not found with email: " + email);
+        }
+    }
+
+
+    @Override
     public boolean deleteJourney(Long id) {
         if (journeyRepository.existsById(id)) {
             journeyRepository.deleteById(id);

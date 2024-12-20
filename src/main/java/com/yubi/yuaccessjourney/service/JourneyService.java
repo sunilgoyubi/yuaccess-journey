@@ -8,6 +8,7 @@ public interface JourneyService {
     Journey saveJourney(Journey journey, String email);
     Optional<Journey> getJourneyById(Long id);
     List<Journey> getAllJourneys();
+    List<Journey> getAllJourneysByUserEmail(String email);
     Journey updateJourney(Long id, Journey journey);
     boolean deleteJourney(Long id);
 }

@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -51,6 +52,31 @@ public class JourneyController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);  // Other errors
         }
     }
+
+    // Get all journeys for the authenticated user
+    @GetMapping
+    public ResponseEntity<List<Journey>> getAllJourneysForUser(HttpServletRequest request) {
+        try {
+            // Extract the email from the JWT token
+            String token = jwtTokenProvider.resolveToken(request);
+            if (token == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+
+            String email = jwtTokenProvider.getEmailFromToken(token);
+
+            // Fetch all journeys for the user
+            List<Journey> journeys = journeyService.getAllJourneysByUserEmail(email);
+
+            // Return the list of journeys
+            return ResponseEntity.ok(journeys);
+        } catch (ParseException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();  // Invalid token
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();  // Other errors
+        }
+    }
+
 
     // Get journey by ID
     @GetMapping("/{id}")
